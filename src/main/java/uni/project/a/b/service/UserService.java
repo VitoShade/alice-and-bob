@@ -7,14 +7,13 @@ import uni.project.a.b.domain.AppUser;
 @Service
 public interface UserService {
 
-    AppUser findByUsername(String username);
-
-    AppUser createUser(AppUser user);
-
     void saveUser (AppUser user);
 
     AppRole saveRole(AppRole role);
 
+    AppUser getUser(String username);
+
+    
     void addRoleToUser(String username, String roleName);
 
 

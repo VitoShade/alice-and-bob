@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
@@ -27,23 +28,42 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
+//Only for debugging
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/user")
-    public ResponseEntity<AppUser> getUser(String username) {
-        return ResponseEntity.ok().body(userService.findByUsername(username));
+    @Data
+    static class RoleToUserForm{
+        private String username;
+        private String role;
     }
 
-    @GetMapping("/user/save")
+
+    @GetMapping("/get")
+    public ResponseEntity<AppUser> getUser(String username) {
+        return ResponseEntity.ok().body(userService.getUser(username));
+    }
+
+    @GetMapping("/save")
     public ResponseEntity<AppUser> saveUser(@RequestBody AppUser user) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("api/user/save").toUriString());
-        return ResponseEntity.created(uri).body(null);
+        return ResponseEntity.created(uri).body(user);
     }
+
+    @GetMapping("/role/addto")
+    public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
+        userService.addRoleToUser(form.getUsername(), form.getRole());
+        return ResponseEntity.ok().build();
+    }
+
+
+
+
 
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response){
@@ -56,7 +76,7 @@ public class UserController {
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(refresh_token);
                 String username = decodedJWT.getSubject();
-                AppUser user = userService.findByUsername(username);
+                AppUser user = userService.getUser(username);
 
                 String access_token = JWT.create()
                         .withSubject(user.getUsername())
