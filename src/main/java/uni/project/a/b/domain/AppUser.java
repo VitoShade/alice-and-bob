@@ -23,15 +23,26 @@ public class AppUser {
 
     private String password;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    private AppRole appRole;
+    private AppRole role;
 
     // Looking for all the signal related stuff
     private String token;
 
-    private String PubIdKeyA;
+    private String refreshToken;
 
-    private String PubIdKeyB;
+    private String pubKey;
+
+    private String privKey;
+
+
+
+
+
+    public AppUser(String username, String password) {
+        this.username = username;
+        this.password = password;
+        //TODO: Token and keys???
+    }
 
 
 }

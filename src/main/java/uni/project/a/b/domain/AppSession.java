@@ -99,7 +99,8 @@ public class AppSession {
   return messages;
  }
 
- public void setMessages(AppMessage messages) {
+ public void addMessage(AppMessage messages) {
   this.messages.add(messages);
  }
+
 }

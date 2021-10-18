@@ -10,6 +10,10 @@ public interface MessageService {
 
     List<AppMessage> findBySession(Long sessionId);
 
-    //saving?
+    List<AppMessage> findBySession(Long sessionId, Long senderId);
+
+    void saveMessage(AppMessage message, Long sessionId);
+
+
 
 }

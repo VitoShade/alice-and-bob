@@ -57,7 +57,24 @@ public class SessionServiceImpl implements SessionService, MessageService {
     @Override
     public List<AppMessage> findBySession(Long sessionId) {
         Optional<AppSession> sess = getSession(sessionId);
-        if (sess.isPresent()) return sess.get().getMessages();
-        else return null;
+        return sess.map(AppSession::getMessages).orElse(null);
+    }
+
+    @Override
+    public List<AppMessage> findBySession(Long sessionId, Long senderId) {
+        Optional<AppSession> sess = getSession(sessionId);
+        List<AppMessage> mess = sess.get().getMessages();
+
+        return mess.stream().filter(message -> message.getSenderId().equals(senderId)).toList();
+
+
+    }
+
+    @Override
+    public void saveMessage(AppMessage message, Long sessionId) {
+        Optional<AppSession> sess = sessionRepo.findById(sessionId);
+        sess.get().addMessage(message);
+
+
     }
 }

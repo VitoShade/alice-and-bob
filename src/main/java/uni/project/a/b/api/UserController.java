@@ -55,12 +55,6 @@ public class UserController {
         return ResponseEntity.created(uri).body(user);
     }
 
-    @GetMapping("/role/addto")
-    public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
-        userService.addRoleToUser(form.getUsername(), form.getRole());
-        return ResponseEntity.ok().build();
-    }
-
 
 
 
