@@ -4,22 +4,35 @@ package uni.project.a.b.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
+public enum AppRole {
 
+    USER(Set.of(AppPermission.GLOBAL));
 
-@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class AppRole {
+    private Set<AppPermission> permissions;
 
+    AppRole(Set<AppPermission> permissions) {
+        this.permissions = permissions;
+    }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    public Set<AppPermission> getPermissions() {
+        return permissions;
+    }
 
-    private String name;
+    public void setPermissions(Set<AppPermission> permissions) {
+        this.permissions = permissions;
+    }
+
+    public Set<SimpleGrantedAuthority> getAuth(){
+        return getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .collect(Collectors.toSet());
+    }
+
 
 }

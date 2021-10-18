@@ -5,9 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
+
 
 
 @Entity
@@ -20,53 +19,30 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-
     private String username;
 
     private String password;
 
+    private AppRole role;
+
+    // Looking for all the signal related stuff
     private String token;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Collection<AppRole> role;
+    private String refreshToken;
 
-    public Long getId() {
-        return id;
-    }
+    private String pubKey;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String privKey;
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
+
+
+
+    public AppUser(String username, String password) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
+        //TODO: Token and keys???
     }
 
-    public String getToken() {
-        return token;
-    }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public Collection<AppRole> getRole() {
-        return role;
-    }
-
-    public void setRole(Collection<AppRole> role) {
-        this.role = role;
-    }
 }

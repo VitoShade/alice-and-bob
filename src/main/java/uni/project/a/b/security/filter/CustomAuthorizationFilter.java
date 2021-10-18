@@ -29,7 +29,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         //Pass through if is the login path
-        if (request.getServletPath().equals("/api/login/**") || request.getServletPath().equals("/api/token/refresh/**") ){
+        if (request.getServletPath().equals("/api/login/**") || request.getServletPath().equals("/api/token/refresh/**") || request.getServletPath().equals("/api/register/**")  ){
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);

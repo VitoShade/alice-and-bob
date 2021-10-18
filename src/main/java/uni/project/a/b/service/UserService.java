@@ -3,19 +3,25 @@ package uni.project.a.b.service;
 import org.springframework.stereotype.Service;
 import uni.project.a.b.domain.AppRole;
 import uni.project.a.b.domain.AppUser;
+import uni.project.a.b.validation.UserVal;
+
+import java.util.Optional;
 
 @Service
 public interface UserService {
 
-    AppUser findByUsername(String username);
+    AppUser createUser(UserVal userVal);
 
-    AppUser createUser(AppUser user);
+    AppUser getUser(String username);
 
-    void saveUser (AppUser user);
+    Optional<AppUser> getUser(Long id);
 
-    AppRole saveRole(AppRole role);
+    void saveUser(AppUser user);
 
-    void addRoleToUser(String username, String roleName);
+
+    boolean isAuth();
+
+
 
 
 

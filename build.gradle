@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.5'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket:2.5.5'
 	implementation 'com.auth0:java-jwt:3.18.2'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
 	compileOnly 'org.projectlombok:lombok:1.18.20'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.5'
 	runtimeOnly 'org.postgresql:postgresql:42.2.24.jre7'
