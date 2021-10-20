@@ -10,7 +10,6 @@ import java.util.Collection;
 
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppUser {
@@ -34,15 +33,73 @@ public class AppUser {
 
     private String privKey;
 
-
-
-
-
     public AppUser(String username, String password) {
         this.username = username;
         this.password = password;
         //TODO: Token and keys???
     }
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public AppRole getRole() {
+        return role;
+    }
+
+    public void setRole(AppRole role) {
+        this.role = role;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public String getPubKey() {
+        return pubKey;
+    }
+
+    public void setPubKey(String pubKey) {
+        this.pubKey = pubKey;
+    }
+
+    public String getPrivKey() {
+        return privKey;
+    }
+
+    public void setPrivKey(String privKey) {
+        this.privKey = privKey;
+    }
 }

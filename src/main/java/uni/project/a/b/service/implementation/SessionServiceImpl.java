@@ -2,6 +2,7 @@ package uni.project.a.b.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
@@ -16,14 +17,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class SessionServiceImpl implements SessionService, MessageService {
 
-
+    @Autowired
     private SessionRepo sessionRepo;
 
+    @Autowired
     private UserService userService;
 
 
@@ -34,22 +35,22 @@ public class SessionServiceImpl implements SessionService, MessageService {
     }
 
     @Override
-    public Stream<AppSession> getByUsers(Long id) {
+    public Stream<AppSession> getByUsers(String username) {
         log.info("Getting Session by user id");
-        return sessionRepo.findByUsers(id);
+        return sessionRepo.findByUsers(username);
     }
 
     @Override
-    public Optional<AppSession> getByUsers(Long id1, Long id2) {
+    public Optional<AppSession> getByUsers(String user1, String user2) {
         log.info("Getting Session by user id");
-        return sessionRepo.findByUsers(id1, id2);
+        return sessionRepo.findByUsers(user1, user2);
     }
 
 
     @Override
-    public void establishSession(Long id1, Long id2) {
+    public void establishSession(String user1, String user2) {
         log.info("Establishing sessions");
-        sessionRepo.save(id1, id2);
+        sessionRepo.save(user1, user2);
 
     }
 
