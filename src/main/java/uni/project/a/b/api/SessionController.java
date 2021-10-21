@@ -1,6 +1,5 @@
 package uni.project.a.b.api;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,15 +38,7 @@ public class SessionController {
     public void initSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String username2 = request.getParameter("username");
-
-        //duplicate code, is removable(?)
-        /*
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-        DecodedJWT decodedJWT = JwtUtils.decodeToken(authorizationHeader);
-        String username1 = decodedJWT.getSubject();
-
-         */
-       String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         //check if the receiver exist
         AppUser receiver = userService.getUser(username2);
@@ -79,7 +70,7 @@ public class SessionController {
         } else {
             Stream<AppSession> sessions = sessionService.getByUsers(username1);
 
-            //ESPLODE!
+
             sessions.forEach(sess -> {
                 if (!Objects.equals(sess.getAliceUser(), username1)) {
                     out.put(sess.getAliceUser(), sess.getId().toString());
