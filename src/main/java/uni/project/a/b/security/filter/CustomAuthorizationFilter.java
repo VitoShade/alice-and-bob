@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import uni.project.a.b.utils.JwtUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,22 +30,24 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         //Pass through if is the login path
-        if (request.getServletPath().equals("/api/login/**") || request.getServletPath().equals("/api/token/refresh/**") || request.getServletPath().equals("/api/register/**")  ){
+        if (request.getServletPath().equals("/api/login")
+                || request.getServletPath().equals("/api/token/refresh")
+                || request.getServletPath().equals("/api/register")) {
+            log.info("No need for authorization, pass the filter");
             filterChain.doFilter(request, response);
         } else {
+            log.info("Need authorization! Check token");
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
                 try {
-                    String token = authorizationHeader.substring("Bearer ". length());
-                    Algorithm algorithm = Algorithm.HMAC512("secret");
-                    JWTVerifier verifier = JWT.require(algorithm).build();
-                    DecodedJWT decodedJWT = verifier.verify(token);
+
+                    DecodedJWT decodedJWT = JwtUtils.decodeToken(authorizationHeader);
 
                     String username = decodedJWT.getSubject();
-                    String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
+                    String role = decodedJWT.getClaim("roles").asString();
 
+                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    authorities.add(new SimpleGrantedAuthority(role));
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(username,null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);

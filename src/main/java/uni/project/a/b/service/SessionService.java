@@ -9,13 +9,13 @@ public interface SessionService {
 
     Optional<AppSession> getSession(Long id);
 
-    Stream<AppSession> getByUsers(Long id);
-    Optional<AppSession> getByUsers(Long id1, Long id2);
+    Stream<AppSession> getByUsers(String username);
+    Optional<AppSession> getByUsers(String user1, String user2);
 
-    // sure about id?
-    void establishSession(Long id1, Long id2);
 
-    //TODO: messsages handler???
+    void establishSession(String user1, String user2);
+
+    //TODO: messsages handler, delete conversation (using a bean??)
 
 
 

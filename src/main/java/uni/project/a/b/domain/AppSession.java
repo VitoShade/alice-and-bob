@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 
  */
+@Data
 public class AppSession {
 
    /* @Id
@@ -27,9 +29,10 @@ public class AppSession {
     */
     private Long id;
 
-    private Long aliceId;
+    private String aliceUser;
 
-    private Long bobId;
+
+    private String bobUser;
 
     private String sessionKey;
 
@@ -37,69 +40,25 @@ public class AppSession {
 
     private LocalDateTime startedTime;
 
-    // lists of messages???
-    //@OneToMany
     private List<AppMessage> messages;
 
- public AppSession(Long id, Long aliceId, Long bobId) {
-  this.id = id;
-  this.aliceId = aliceId;
-  this.bobId = bobId;
- }
 
- public Long getId() {
-  return this.id;
- }
+    public AppSession(Long id, String aliceUser, String bobUser) {
+        this.id = id;
+        this.aliceUser = aliceUser;
+        this.bobUser = bobUser;
+        this.messages = new ArrayList<>();
 
- public void setId(Long id) {
-  this.id = id;
- }
+    }
 
- public Long getAliceId() {
-  return aliceId;
- }
 
- public void setAliceId(Long aliceId) {
-  this.aliceId = aliceId;
- }
 
- public Long getBobId() {
-  return bobId;
- }
 
- public void setBobId(Long bobId) {
-  this.bobId = bobId;
- }
-
- public String getSessionKey() {
-  return sessionKey;
- }
-
- public void setSessionKey(String sessionKey) {
-  this.sessionKey = sessionKey;
- }
-
- public String getOneTimeKey() {
-  return oneTimeKey;
- }
-
- public void setOneTimeKey(String oneTimeKey) {
-  this.oneTimeKey = oneTimeKey;
- }
-
- public LocalDateTime getStartedTime() {
-  return startedTime;
- }
-
- public void setStartedTime(LocalDateTime startedTime) {
-  this.startedTime = startedTime;
- }
-
- public List<AppMessage> getMessages() {
+    public List<AppMessage> getMessages() {
   return messages;
  }
 
- public void addMessage(AppMessage messages) {
+    public void addMessage(AppMessage messages) {
   this.messages.add(messages);
  }
 

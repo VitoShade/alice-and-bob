@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
  */
 public class AppMessage {
 
-  // @Id
+   private Long id;
+
    private Long sessionId;
 
    private String body;
@@ -25,7 +26,14 @@ public class AppMessage {
    private LocalDateTime time;
 
    //the name of the user?
-   private Long senderId;
+   private String senderUser;
+
+ public AppMessage(Long sessionId, String body, LocalDateTime time, String senderUser) {
+  this.sessionId = sessionId;
+  this.body = body;
+  this.time = time;
+  this.senderUser = senderUser;
+ }
 
  public Long getSessionId() {
   return sessionId;
@@ -51,11 +59,11 @@ public class AppMessage {
   this.time = time;
  }
 
- public Long getSenderId() {
-  return senderId;
+ public String getSenderUser() {
+  return senderUser;
  }
 
- public void setSenderId(Long senderId) {
-  this.senderId = senderId;
+ public void setSenderUser(String senderUser) {
+  this.senderUser = senderUser;
  }
 }
