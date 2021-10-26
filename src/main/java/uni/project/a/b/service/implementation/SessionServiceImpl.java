@@ -12,6 +12,7 @@ import uni.project.a.b.service.SessionService;
 import uni.project.a.b.service.UserService;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -62,13 +63,20 @@ public class SessionServiceImpl implements SessionService, MessageService {
     }
 
     @Override
-    public List<AppMessage> findBySession(Long sessionId, Long senderId) {
+    public List<AppMessage> findBySession(Long sessionId, String senderUser) {
         Optional<AppSession> sess = getSession(sessionId);
         List<AppMessage> mess = sess.get().getMessages();
 
-        return mess.stream().filter(message -> message.getSenderId().equals(senderId)).toList();
+        return mess.stream().filter(message -> message.getSenderUser().equals(senderUser)).toList();
 
+    }
 
+    @Override
+    public List<AppMessage> findBySession(Long sessionId, LocalDateTime time) {
+        Optional<AppSession> sess = getSession(sessionId);
+        List<AppMessage> mess = sess.get().getMessages();
+
+        return mess.stream().filter(message -> message.getTime().isAfter(time)).toList();
     }
 
     @Override
@@ -78,4 +86,6 @@ public class SessionServiceImpl implements SessionService, MessageService {
 
 
     }
+
+
 }

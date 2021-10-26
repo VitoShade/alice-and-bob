@@ -79,6 +79,9 @@ public class SessionController {
                 }
             });
         }
+        if (out.isEmpty()){
+            out.put("none", "none");
+        }
         return ResponseEntity.ok(out);
 
 

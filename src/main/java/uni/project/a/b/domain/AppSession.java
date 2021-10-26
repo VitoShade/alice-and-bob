@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class AppSession {
     private String aliceUser;
 
 
- private String bobUser;
+    private String bobUser;
 
     private String sessionKey;
 
@@ -39,26 +40,25 @@ public class AppSession {
 
     private LocalDateTime startedTime;
 
-    // lists of messages???
-    //@OneToMany
     private List<AppMessage> messages;
 
 
- public AppSession(Long id, String aliceUser, String bobUser) {
-  this.id = id;
-  this.aliceUser = aliceUser;
-  this.bobUser = bobUser;
+    public AppSession(Long id, String aliceUser, String bobUser) {
+        this.id = id;
+        this.aliceUser = aliceUser;
+        this.bobUser = bobUser;
+        this.messages = new ArrayList<>();
 
- }
+    }
 
 
 
 
- public List<AppMessage> getMessages() {
+    public List<AppMessage> getMessages() {
   return messages;
  }
 
- public void addMessage(AppMessage messages) {
+    public void addMessage(AppMessage messages) {
   this.messages.add(messages);
  }
 

@@ -37,7 +37,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             log.info("Need authorization! Check token");
-            log.info(request.getServletPath());
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
                 try {
@@ -52,7 +51,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(username,null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    log.info("Qui ci arriva");
                     filterChain.doFilter(request, response);
 
 
