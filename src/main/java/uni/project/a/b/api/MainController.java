@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +32,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class MainController {
 
-    @Autowired
     private UserService userService;
 
     // Login is done within the security configuration of Spring

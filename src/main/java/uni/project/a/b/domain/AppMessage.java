@@ -1,13 +1,11 @@
 package uni.project.a.b.domain;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.security.web.header.Header;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /*@Entity
 @Data
@@ -15,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 
  */
+@Data
 public class AppMessage {
 
    private Long id;
@@ -28,11 +27,21 @@ public class AppMessage {
    //the name of the user?
    private String senderUser;
 
+   private Header header;
+
  public AppMessage(Long sessionId, String body, LocalDateTime time, String senderUser) {
   this.sessionId = sessionId;
   this.body = body;
   this.time = time;
   this.senderUser = senderUser;
+ }
+
+ public AppMessage(Long sessionId, String body, LocalDateTime time, String senderUser, Header header) {
+  this.sessionId = sessionId;
+  this.body = body;
+  this.time = time;
+  this.senderUser = senderUser;
+  this.header = header;
  }
 
  public Long getSessionId() {

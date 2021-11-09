@@ -1,5 +1,6 @@
 package uni.project.a.b.api;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,13 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/conversation")
+@AllArgsConstructor
 @Slf4j
 public class SessionController {
 
-    @Autowired
+
     private SessionService sessionService;
 
-    @Autowired
     private UserService userService;
 
 

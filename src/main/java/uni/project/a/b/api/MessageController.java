@@ -1,16 +1,19 @@
 package uni.project.a.b.api;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.jni.Local;
 import org.javatuples.Triplet;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
 import uni.project.a.b.domain.AppUser;
@@ -28,7 +31,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/conversation/message")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class MessageController {
 
@@ -39,12 +42,8 @@ public class MessageController {
 
     private final MessageService messageService;
 
-   /* @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
-
-    */
-
+    //TODO: Pulire response, utilizzare la response entity di Spring per general coherence
 
     @PostMapping("/send")
     public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -125,60 +124,10 @@ public class MessageController {
         return ResponseEntity.internalServerError().build();
     }
 
-
-/*
-    @MessageMapping("/send")
-    public ResponseEntity<String> sendMessage(HttpServletRequest request, @Payload NetMessage netMessage) throws IOException {
-        log.info("entro");
-        Optional<Long> sessionId = Optional.ofNullable(Long.getLong(request.getParameter("id")));
-
-        String username2 = request.getParameter("username");
-        String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-
-        Optional<AppSession> sess;
-
-
-        //check if there is a sessionId -> more efficient
-        if (sessionId.isPresent()){
-            sess = sessionService.getSession(sessionId.get());
-        } else {
-            //check if the receiver exist
-            AppUser receiver = userService.getUser(username2);
-            if (receiver == null) {
-                log.error("User not found");
-                return ResponseEntity.notFound().build();
-            } else if (Objects.equals(username1, username2)) {
-                log.error("Same username");
-                return ResponseEntity.badRequest().body("You cannot send a message to yourself (if you aren't in a multiverse interpretation of the world)");
-            } else {
-                sess = sessionService.getByUsers(username1, username2);
-            }
-        }
-
-        if (sess.isEmpty()){
-            log.error("No session opened with {}, establish it before sending a message", username2);
-            return ResponseEntity.badRequest().body("No session opened with the desired user, establish it before sending a message");
-        } else {
-            // TODO: not true! Implement WebSocket before!
-            log.info("Message sended");
-
-            netMessage.getMessage().setSenderUser(username1);
-
-            netMessage.setNetStatus(NetStatus.SUCCESS);
-            simpMessagingTemplate.convertAndSendToUser(username2, "/queue/messages", netMessage);
-
-            return ResponseEntity.ok("sended");
-
-
-        }
-
-    }
-
- */
-
-
-
 }
+
+
+
+
 
 
