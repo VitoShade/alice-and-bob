@@ -9,15 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-// Main idea is that the session should not be saved in the db, is currently possible???
-// First try is that we saved it and use jpa for simplicity
-
-/*@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-
- */
 @Data
 public class AppSession {
 

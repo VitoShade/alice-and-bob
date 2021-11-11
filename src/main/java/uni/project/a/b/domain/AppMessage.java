@@ -20,7 +20,7 @@ public class AppMessage {
 
    private Long sessionId;
 
-   private String body;
+   private byte[] body;
 
    private LocalDateTime time;
 
@@ -29,14 +29,14 @@ public class AppMessage {
 
    private Header header;
 
- public AppMessage(Long sessionId, String body, LocalDateTime time, String senderUser) {
+ public AppMessage(Long sessionId, byte[] body, LocalDateTime time, String senderUser) {
   this.sessionId = sessionId;
   this.body = body;
   this.time = time;
   this.senderUser = senderUser;
  }
 
- public AppMessage(Long sessionId, String body, LocalDateTime time, String senderUser, Header header) {
+ public AppMessage(Long sessionId, byte[] body, LocalDateTime time, String senderUser, Header header) {
   this.sessionId = sessionId;
   this.body = body;
   this.time = time;
@@ -52,12 +52,20 @@ public class AppMessage {
   this.sessionId = sessionId;
  }
 
- public String getBody() {
+ public byte[] getBody() {
   return body;
  }
 
- public void setBody(String body) {
+ public void setBody(byte[] body) {
   this.body = body;
+ }
+
+ public Header getHeader() {
+  return header;
+ }
+
+ public void setHeader(Header header) {
+  this.header = header;
  }
 
  public LocalDateTime getTime() {

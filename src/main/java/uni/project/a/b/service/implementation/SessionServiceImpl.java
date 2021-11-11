@@ -2,8 +2,13 @@ package uni.project.a.b.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.header.Header;
 import org.springframework.stereotype.Service;
+import uni.project.a.b.crypto.DoubleRatchet;
+import uni.project.a.b.crypto.SessionState;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
 import uni.project.a.b.repo.SessionRepo;
@@ -11,8 +16,15 @@ import uni.project.a.b.service.MessageService;
 import uni.project.a.b.service.SessionService;
 import uni.project.a.b.service.UserService;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -49,9 +61,39 @@ public class SessionServiceImpl implements SessionService, MessageService {
 
 
     @Override
-    public void establishSession(String user1, String user2) {
+    public void establishSession(String user1, String user2) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         log.info("Establishing sessions");
-        sessionRepo.save(user1, user2);
+        AppSession sess = sessionRepo.save(user1, user2);
+        List<AppMessage> messages = sess.getMessages();
+
+        if (messages.size() == 0) {
+            // if 0 then, the invoker of the method become alice
+            Triplet<byte[], byte[], Header> keys = DoubleRatchet.aliceKeyAgr(userService.getUser(user1), userService.getUser(user2));
+            byte[] ciphertext = DoubleRatchet.encrypt(keys.getValue0(), "first message", keys.getValue1());
+            AppMessage message = new AppMessage(sess.getId(), ciphertext, LocalDateTime.now(), user1, keys.getValue2());
+
+            //TODO: Init session state!
+
+            saveMessage(message, sess.getId());
+
+        } else if (messages.size() == 1){
+            // if 1 then the invoker become bob
+            AppMessage firstMessage = messages.get(0);
+            byte[][] keys  = DoubleRatchet.bobKeyAgr(userService.getUser(user1), firstMessage.getHeader());
+            byte[] plaintext = DoubleRatchet.decrypt(keys[0],firstMessage.getBody(), keys[1]);
+
+            if (!Arrays.toString(plaintext).equals("first message")){
+                log.error("Decryption failed, aborting session");
+                sessionRepo.delete(sess.getId());
+            } else {
+                //TODO: Init session state!
+            }
+        } else {
+            log.info("Session already established");
+        }
+
+
+
 
     }
 

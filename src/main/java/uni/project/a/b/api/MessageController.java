@@ -44,7 +44,7 @@ public class MessageController {
 
 
     //TODO: Pulire response, utilizzare la response entity di Spring per general coherence
-
+/*
     @PostMapping("/send")
     public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -81,8 +81,10 @@ public class MessageController {
 
     }
 
+ */
+
     @GetMapping("/get")
-    public ResponseEntity<List<Triplet<String,String, LocalDateTime>>> getMessages(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<List<Triplet<String, byte[], LocalDateTime>>> getMessages(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username2 = request.getParameter("username");
         String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -103,7 +105,7 @@ public class MessageController {
             } else {
                 log.info("Getting messages");
                 List<AppMessage> messages;
-                List<Triplet<String, String, LocalDateTime>> out = new ArrayList<>();
+                List<Triplet<String, byte[], LocalDateTime>> out = new ArrayList<>();
                 if (Objects.equals(request.getParameter("options"), "all")) {
                     messages = messageService.findBySession(sess.get().getId());
                     log.error(messages.toString());

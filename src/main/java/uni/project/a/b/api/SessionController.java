@@ -5,18 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.header.Header;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
 import uni.project.a.b.domain.AppUser;
+import uni.project.a.b.service.MessageService;
 import uni.project.a.b.service.SessionService;
 import uni.project.a.b.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -31,12 +36,14 @@ public class SessionController {
 
     private UserService userService;
 
+    private MessageService messageService;
+
 
 
     //Establish sess, retrieve mess, send mess
 
     @PostMapping("/init")
-    public void initSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void initSession(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidKeyException {
 
         String username2 = request.getParameter("username");
         String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -50,7 +57,7 @@ public class SessionController {
             log.error("Same username");
             response.sendError(400, "You cannot send a message to yourself (if you aren't in a multiverse interpretation of the world)");
         } else {
-            sessionService.establishSession(username1,username2);
+            sessionService.establishSession(username1, username2);
             response.setStatus(200);
         }
     }

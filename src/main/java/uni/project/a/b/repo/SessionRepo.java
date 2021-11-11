@@ -1,5 +1,7 @@
 package uni.project.a.b.repo;
 
+import net.bytebuddy.dynamic.DynamicType;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
@@ -36,14 +38,14 @@ public class SessionRepo {
 
 
 
-
-    //TODO: Setting all the keys!
-
-    public void save(String user1, String user2){
+    public AppSession save(String user1, String user2){
         if (findByUsers(user1, user2).isEmpty()){
             AppSession sess = new AppSession(counter.incrementAndGet(), user1, user2);
             sessions.add(sess);
+            return sess;
         }
+        return null;
+
     }
 
     public void delete(long id){
