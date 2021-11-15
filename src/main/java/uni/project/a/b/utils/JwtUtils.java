@@ -19,9 +19,9 @@ public class JwtUtils {
         byte[] secret = new byte[512];
         random.nextBytes(secret);
          */
-    private static String key = "secret";
+    private static final String key = "secret";
 
-    private static Algorithm algorithm = Algorithm.HMAC512(key);
+    private static final Algorithm algorithm = Algorithm.HMAC512(key);
 
     public static DecodedJWT decodeToken(String authorizationHeader){
 
@@ -36,11 +36,12 @@ public class JwtUtils {
         return Algorithm.HMAC512(key);
     }
 
+   // TODO: Modificata la durata del token per debugging, metterla a posto
     public static String[] encodeToken(User user, HttpServletRequest request){
 
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining()))
                 .sign(algorithm);

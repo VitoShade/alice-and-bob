@@ -17,9 +17,12 @@ import uni.project.a.b.service.MessageService;
 import uni.project.a.b.service.SessionService;
 import uni.project.a.b.service.UserService;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,7 +46,7 @@ public class SessionController {
     //Establish sess, retrieve mess, send mess
 
     @PostMapping("/init")
-    public void initSession(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidKeyException {
+    public void initSession(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
         String username2 = request.getParameter("username");
         String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

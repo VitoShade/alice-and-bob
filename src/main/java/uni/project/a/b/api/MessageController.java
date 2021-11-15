@@ -1,19 +1,14 @@
 package uni.project.a.b.api;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.Local;
 import org.javatuples.Triplet;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
 import uni.project.a.b.domain.AppUser;
@@ -21,9 +16,14 @@ import uni.project.a.b.service.MessageService;
 import uni.project.a.b.service.SessionService;
 import uni.project.a.b.service.UserService;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -44,9 +44,9 @@ public class MessageController {
 
 
     //TODO: Pulire response, utilizzare la response entity di Spring per general coherence
-/*
+
     @PostMapping("/send")
-    public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
 
 
         String username2 = request.getParameter("username");
@@ -72,8 +72,8 @@ public class MessageController {
                response.sendError(400, "You cannot send an empty message ");
            } else{
                log.info("Sending message");
-               AppMessage message = new AppMessage(sess.get().getId(), mess, LocalDateTime.now(), username1);
-               messageService.saveMessage(message, sess.get().getId());
+               AppMessage message = new AppMessage(sess.get().getId(), mess.getBytes(StandardCharsets.UTF_8), LocalDateTime.now(), username1);
+               messageService.sendMessage(message, sess.get().getId());
                log.info("Message sended");
             }
 
@@ -81,7 +81,7 @@ public class MessageController {
 
     }
 
- */
+
 
     @GetMapping("/get")
     public ResponseEntity<List<Triplet<String, byte[], LocalDateTime>>> getMessages(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -37,16 +37,17 @@ public class AppUser {
      *
      */
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private AppKeys keys;
 
 
 
 
-    public AppUser(String username, String password) {
+    public AppUser(String username, String password, AppKeys keys) {
         this.username = username;
         this.password = password;
         //TODO: Token and keys???
+        this.keys = keys;
     }
 
     public Long getId() {

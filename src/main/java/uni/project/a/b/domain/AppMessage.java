@@ -27,7 +27,7 @@ public class AppMessage {
    //the name of the user?
    private String senderUser;
 
-   private Header header;
+   private AppHeader header;
 
  public AppMessage(Long sessionId, byte[] body, LocalDateTime time, String senderUser) {
   this.sessionId = sessionId;
@@ -36,7 +36,7 @@ public class AppMessage {
   this.senderUser = senderUser;
  }
 
- public AppMessage(Long sessionId, byte[] body, LocalDateTime time, String senderUser, Header header) {
+ public AppMessage(Long sessionId, byte[] body, LocalDateTime time, String senderUser, AppHeader header) {
   this.sessionId = sessionId;
   this.body = body;
   this.time = time;
@@ -60,13 +60,7 @@ public class AppMessage {
   this.body = body;
  }
 
- public Header getHeader() {
-  return header;
- }
 
- public void setHeader(Header header) {
-  this.header = header;
- }
 
  public LocalDateTime getTime() {
   return time;

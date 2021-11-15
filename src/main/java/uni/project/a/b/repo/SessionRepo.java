@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 @Repository
 public class SessionRepo {
 
-    //TODO: HIGHLY INEFFICIENT SOLUTION, find something better in functional java or replace by simple for loops
     private final List<AppSession> sessions = new ArrayList<>();
 
     private final AtomicLong counter = new AtomicLong(0);
@@ -39,12 +38,15 @@ public class SessionRepo {
 
 
     public AppSession save(String user1, String user2){
-        if (findByUsers(user1, user2).isEmpty()){
-            AppSession sess = new AppSession(counter.incrementAndGet(), user1, user2);
-            sessions.add(sess);
-            return sess;
+        Optional<AppSession> sess = findByUsers(user1, user2);
+        if (sess.isEmpty()){
+            AppSession session = new AppSession(counter.incrementAndGet(), user1, user2);
+            sessions.add(session);
+            return session;
+        } else {
+            return sess.get();
         }
-        return null;
+
 
     }
 
