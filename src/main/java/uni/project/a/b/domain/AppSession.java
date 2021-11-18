@@ -23,7 +23,9 @@ public class AppSession {
 
     private LocalDateTime startedTime;
 
-    private List<AppMessage> messages;
+    private List<AppMessage> aliceMessages;
+
+    private List<AppMessage> bobMessages;
 
     /**
      * Post-Protocol
@@ -35,6 +37,9 @@ public class AppSession {
 
     private SessionState bobState;
 
+    private boolean established;
+
+
 
 
 
@@ -43,35 +48,31 @@ public class AppSession {
         this.id = id;
         this.aliceUser = aliceUser;
         this.bobUser = bobUser;
-        this.messages = new ArrayList<>();
+        this.aliceMessages = new ArrayList<>();
+        this.bobMessages = new ArrayList<>();
         this.kdf = new KDF();
+        this.established = false;
 
     }
 
-    public List<AppMessage> getMessages() {
-        return messages;
+    public List<AppMessage> getMessages(String username) {
+        if (username.equals("alice")){
+            return aliceMessages;
+        }
+        else {
+            return bobMessages;
+        }
     }
 
-    public void addMessage(AppMessage messages) {
-  this.messages.add(messages);
- }
-/*
-    public void establishSession(byte[] bobIdentityKey,
-                                 Curve25519KeyPair aliceRatchetKeypair,
-                                 byte[] rootKey,
-                                 byte[] bobSignedPreKey,
-                                 byte[] sendingChainKey,
-                                 byte[] receivingChainKey) {
-        this.bobIdentityKey = bobIdentityKey;
-        this.aliceRatchetKeypair = aliceRatchetKeypair;
-        this.rootKey = rootKey;
-        this.bobSignedPreKey = bobSignedPreKey;
-        this.sendingChainKey = sendingChainKey;
-        this.receivingChainKey = receivingChainKey;
-
+    public void addMessage(AppMessage message, String username) {
+        if (username.equals("alice")){
+            aliceMessages.add(message);
+        }
+        else {
+            bobMessages.add(message);
+        }
     }
 
- */
 
 
 }

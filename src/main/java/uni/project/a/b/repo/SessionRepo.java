@@ -37,7 +37,7 @@ public class SessionRepo {
 
 
 
-    public AppSession save(String user1, String user2){
+    public AppSession create(String user1, String user2){
         Optional<AppSession> sess = findByUsers(user1, user2);
         if (sess.isEmpty()){
             AppSession session = new AppSession(counter.incrementAndGet(), user1, user2);
@@ -46,9 +46,25 @@ public class SessionRepo {
         } else {
             return sess.get();
         }
+    }
 
+    public void update(AppSession newSession){
+        Optional<AppSession> oldSession = findById(newSession.getId());
+        if (oldSession.isPresent()){
+            /*
+            oldSession.get().setAliceState(newSession.getAliceState());
+            oldSession.get().setBobState(newSession.getBobState());
+            //TODO: unsafe!
+            oldSession.get().setMessages(newSession.getMessages());
+             */
+            delete(oldSession.get().getId());
+            counter.incrementAndGet();
+            sessions.add(newSession);
+        }
 
     }
+
+
 
     public void delete(long id){
         Optional<AppSession> sess = findById(id);

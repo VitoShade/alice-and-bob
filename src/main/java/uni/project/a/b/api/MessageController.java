@@ -107,14 +107,14 @@ public class MessageController {
                 List<AppMessage> messages;
                 List<Triplet<String, byte[], LocalDateTime>> out = new ArrayList<>();
                 if (Objects.equals(request.getParameter("options"), "all")) {
-                    messages = messageService.findBySession(sess.get().getId());
+                    messages = messageService.findBySession(sess.get().getId(), username1);
                     log.error(messages.toString());
 
                 }else {
                     LocalTime time = LocalTime.of(Integer.parseInt(request.getParameter("hour")), Integer.parseInt(request.getParameter("minute")));
                     LocalDate date = LocalDate.now();
                     LocalDateTime localDateTime = LocalDateTime.of(date, time);
-                    messages = messageService.findBySession(sess.get().getId(), localDateTime);
+                    messages = messageService.findBySession(sess.get().getId(), localDateTime, username1);
                 }
                 messages.forEach(message -> {
                     out.add(new Triplet<>(message.getSenderUser(), message.getBody(), message.getTime()));

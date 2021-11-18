@@ -13,11 +13,10 @@ import java.util.List;
 public interface MessageService {
 
 
-    List<AppMessage> findBySession(Long sessionId);
 
     List<AppMessage> findBySession(Long sessionId, String senderUser);
 
-    List<AppMessage> findBySession(Long sessionId, LocalDateTime time);
+    List<AppMessage> findBySession(Long sessionId, LocalDateTime time, String sender);
 
     void sendMessage(AppMessage message, Long sessionId) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException;
 
