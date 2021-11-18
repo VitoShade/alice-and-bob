@@ -14,6 +14,10 @@ import java.util.Collection;
 @AllArgsConstructor
 public class AppUser {
 
+    /**
+     * Pre-Protocol
+     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,19 +28,26 @@ public class AppUser {
 
     private AppRole role;
 
-    // Looking for all the signal related stuff
     private String token;
 
     private String refreshToken;
 
-    private String pubKey;
+    /**
+     * Post-Protocol
+     *
+     */
 
-    private String privKey;
+    @OneToOne(cascade = CascadeType.ALL)
+    private AppKeys keys;
 
-    public AppUser(String username, String password) {
+
+
+
+    public AppUser(String username, String password, AppKeys keys) {
         this.username = username;
         this.password = password;
         //TODO: Token and keys???
+        this.keys = keys;
     }
 
     public Long getId() {
@@ -87,19 +98,11 @@ public class AppUser {
         this.refreshToken = refreshToken;
     }
 
-    public String getPubKey() {
-        return pubKey;
+    public AppKeys getKeys() {
+        return keys;
     }
 
-    public void setPubKey(String pubKey) {
-        this.pubKey = pubKey;
-    }
-
-    public String getPrivKey() {
-        return privKey;
-    }
-
-    public void setPrivKey(String privKey) {
-        this.privKey = privKey;
+    public void setKeys(AppKeys keys) {
+        this.keys = keys;
     }
 }

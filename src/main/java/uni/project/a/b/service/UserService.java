@@ -10,19 +10,11 @@ import java.util.Optional;
 @Service
 public interface UserService {
 
-    AppUser createUser(UserVal userVal);
-
     AppUser getUser(String username);
 
     Optional<AppUser> getUser(Long id);
 
     void saveUser(AppUser user);
-
-
-    boolean isAuth();
-
-
-
 
 
 

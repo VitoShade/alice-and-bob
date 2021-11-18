@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uni.project.a.b.domain.AppKeys;
 import uni.project.a.b.domain.AppRole;
 import uni.project.a.b.domain.AppUser;
 import uni.project.a.b.service.UserService;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,11 +34,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class MainController {
 
-    @Autowired
     private UserService userService;
 
     // Login is done within the security configuration of Spring
@@ -55,8 +57,8 @@ public class MainController {
 
         log.info("creo utente e salvo nel db");
 
-
-        AppUser user = new AppUser(username, password);
+        AppKeys keys = new AppKeys();
+        AppUser user = new AppUser(username, password, keys);
         userService.saveUser(user);
 
         return ResponseEntity.ok().build();

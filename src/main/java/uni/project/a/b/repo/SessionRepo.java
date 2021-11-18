@@ -1,5 +1,7 @@
 package uni.project.a.b.repo;
 
+import net.bytebuddy.dynamic.DynamicType;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
@@ -8,11 +10,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-// if we need to save all in the db we need to extend JpaRepo
 @Repository
 public class SessionRepo {
 
-    //TODO: HIGHLY INEFFICIENT SOLUTION, find something better in functional java or replace by simple for loops
     private final List<AppSession> sessions = new ArrayList<>();
 
     private final AtomicLong counter = new AtomicLong(0);
@@ -36,15 +36,34 @@ public class SessionRepo {
 
 
 
-
-    //TODO: Setting all the keys!
-
-    public void save(String user1, String user2){
-        if (findByUsers(user1, user2).isEmpty()){
-            AppSession sess = new AppSession(counter.incrementAndGet(), user1, user2);
-            sessions.add(sess);
+    public AppSession create(String user1, String user2){
+        Optional<AppSession> sess = findByUsers(user1, user2);
+        if (sess.isEmpty()){
+            AppSession session = new AppSession(counter.incrementAndGet(), user1, user2);
+            sessions.add(session);
+            return session;
+        } else {
+            return sess.get();
         }
     }
+
+    public void update(AppSession newSession){
+        Optional<AppSession> oldSession = findById(newSession.getId());
+        if (oldSession.isPresent()){
+            /*
+            oldSession.get().setAliceState(newSession.getAliceState());
+            oldSession.get().setBobState(newSession.getBobState());
+            //TODO: unsafe!
+            oldSession.get().setMessages(newSession.getMessages());
+             */
+            delete(oldSession.get().getId());
+            counter.incrementAndGet();
+            sessions.add(newSession);
+        }
+
+    }
+
+
 
     public void delete(long id){
         Optional<AppSession> sess = findById(id);
