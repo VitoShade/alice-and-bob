@@ -8,6 +8,7 @@ import uni.project.a.b.crypto.SessionState;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 public class AppSession {
@@ -48,8 +49,8 @@ public class AppSession {
         this.id = id;
         this.aliceUser = aliceUser;
         this.bobUser = bobUser;
-        this.aliceMessages = new ArrayList<>();
-        this.bobMessages = new ArrayList<>();
+        this.aliceMessages = new CopyOnWriteArrayList<>();
+        this.bobMessages = new CopyOnWriteArrayList<>();
         this.kdf = new KDF();
         this.established = false;
 
@@ -70,6 +71,15 @@ public class AppSession {
         }
         else {
             bobMessages.add(message);
+        }
+    }
+
+    public void deleteMessage(AppMessage message, String username){
+        if (username.equals("alice")){
+            aliceMessages.remove(message);
+        }
+        else {
+            bobMessages.remove(message);
         }
     }
 

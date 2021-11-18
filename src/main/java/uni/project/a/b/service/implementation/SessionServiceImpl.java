@@ -67,6 +67,11 @@ public class SessionServiceImpl implements SessionService, MessageService {
 
         KDF kdf = new KDF();
 
+        if (sess.isEstablished()){
+            log.info("Session already established");
+            return;
+        }
+
         if (aliceMessages.size() == bobMessages.size() || aliceMessages.size() == 0) {
             // if 0 then, the invoker of the method become alice
             Triplet<byte[], byte[], AppHeader> keys = DoubleRatchet.aliceKeyAgr(userService.getUser(user1), userService.getUser(user2));
@@ -100,18 +105,22 @@ public class SessionServiceImpl implements SessionService, MessageService {
                 SessionState state = DoubleRatchet.bobRatchetInit(sess,keys[0]);
                 state.setAD(keys[1]);
                 sess.setBobState(state);
+                /*
                 byte[] secondMessage = "Session established, first message decrypted correctly".getBytes(StandardCharsets.UTF_8);
                 AppMessage message = new AppMessage(sess.getId(), secondMessage, LocalDateTime.now(), user1);
 
                 //sendMessage(message, sess.getId());
                 sess.addMessage(message, "bob");
+
+                 */
+                sess.deleteMessage(firstMessage, "alice");
+                sess.setEstablished(true);
                 sessionRepo.update(sess);
+
             }
         } else {
             log.info("Session already established");
         }
-
-
 
 
     }
@@ -151,12 +160,26 @@ public class SessionServiceImpl implements SessionService, MessageService {
 
         List<AppMessage> out = new ArrayList<>();
 
-        // TODO: Error, bob first message and alice first message need to be exited
         mess.forEach(message -> {
             try {
+                if (username.equals(sess.get().getAliceUser())){
                 Pair <byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(sess.get().getAliceState(),
                         message.getBody(), message.getHeader());
                 message.setBody(pair.getValue0());
+
+                    sess.get().setAliceState(pair.getValue1());
+                    sess.get().deleteMessage(message, "bob");
+
+                } else {
+
+                    if (message.getHeader() != null) {
+                        Pair<byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(sess.get().getBobState(),
+                                message.getBody(), message.getHeader());
+                        message.setBody(pair.getValue0());
+                        sess.get().setBobState(pair.getValue1());
+                    }
+                    sess.get().deleteMessage(message, "alice");
+                }
                 out.add(message);
             } catch (InvalidAlgorithmParameterException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
                 e.printStackTrace();
@@ -182,13 +205,28 @@ public class SessionServiceImpl implements SessionService, MessageService {
             String sender = message.getSenderUser();
             log.info(String.valueOf(aliceMessages.size()));
             log.info(String.valueOf(bobMessages.size()));
-            if ((aliceMessages.size() + bobMessages.size()) < 2) {
+
+
+            if (!session.isEstablished()){
                 log.error("Session need finish the initialization, run an establish session before sending messages");
                 return;
-            } else if (sender.equals(session.getBobUser()) || aliceMessages.size() == 1){
+            }else if (sender.equals(session.getBobUser()) && !session.getAliceState().isFlag()){
                 log.error("Alice need to send the first message for being able to send messages");
                 return;
             }
+            /*
+            if ((aliceMessages.size() + bobMessages.size()) < 2) {
+                log.error("Session need finish the initialization, run an establish session before sending messages");
+                return;
+
+
+            } else  if (sender.equals(session.getBobUser()) || aliceMessages.size() == 1){
+                log.error("Alice need to send the first message for being able to send messages");
+                return;
+            }
+
+             */
+
 
             AppSession newSession;
             if (Objects.equals(sender, session.getAliceUser())) {
@@ -226,17 +264,24 @@ public class SessionServiceImpl implements SessionService, MessageService {
 
     private AppSession sendBob(AppMessage message, AppSession session) throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         //preliminaries check
-        if (!session.getBobState().isFlag()){
-           AppMessage aliceInitMessage =  session.getMessages("alice").get(1);
-           Pair<byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(session.getBobState(),
-                   aliceInitMessage.getBody(), aliceInitMessage.getHeader());
-           log.info(new String(pair.getValue0()));
-           SessionState state = pair.getValue1();
-           state.setFlag(true);
-           session.setBobState(state);
-
+        if (!session.getBobState().isFlag()) {
+            SessionState state = session.getBobState();
+            if (session.getMessages("alice").size() != 0) {
+                AppMessage aliceInitMessage = session.getMessages("alice").get(0);
+                Pair<byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(state,
+                        aliceInitMessage.getBody(), aliceInitMessage.getHeader());
+                SessionState newState = pair.getValue1();
+                session.deleteMessage(aliceInitMessage, "alice");
+                aliceInitMessage.setBody(pair.getValue0());
+                aliceInitMessage.setHeader(null);
+                session.addMessage(aliceInitMessage, "alice");
+                newState.setFlag(true);
+                session.setBobState(newState);
+            } else{
+                state.setFlag(true);
+                session.setBobState(state);
+            }
         }
-
         //encryption and send
         byte[] plaintext = message.getBody();
         Triplet<byte[], AppHeader, SessionState> triplet = DoubleRatchet.ratchetEncrypt(session.getBobState(), plaintext);

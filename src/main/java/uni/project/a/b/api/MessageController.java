@@ -84,7 +84,7 @@ public class MessageController {
 
 
     @GetMapping("/get")
-    public ResponseEntity<List<Triplet<String, byte[], LocalDateTime>>> getMessages(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<List<Triplet<String, String, LocalDateTime>>> getMessages(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username2 = request.getParameter("username");
         String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -105,10 +105,9 @@ public class MessageController {
             } else {
                 log.info("Getting messages");
                 List<AppMessage> messages;
-                List<Triplet<String, byte[], LocalDateTime>> out = new ArrayList<>();
+                List<Triplet<String, String, LocalDateTime>> out = new ArrayList<>();
                 if (Objects.equals(request.getParameter("options"), "all")) {
                     messages = messageService.findBySession(sess.get().getId(), username1);
-                    log.error(messages.toString());
 
                 }else {
                     LocalTime time = LocalTime.of(Integer.parseInt(request.getParameter("hour")), Integer.parseInt(request.getParameter("minute")));
@@ -117,7 +116,7 @@ public class MessageController {
                     messages = messageService.findBySession(sess.get().getId(), localDateTime, username1);
                 }
                 messages.forEach(message -> {
-                    out.add(new Triplet<>(message.getSenderUser(), message.getBody(), message.getTime()));
+                    out.add(new Triplet<>(message.getSenderUser(), new String(message.getBody()), message.getTime()));
                 });
                 return ResponseEntity.ok(out);
             }

@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-// if we need to save all in the db we need to extend JpaRepo
 @Repository
 public class SessionRepo {
 
