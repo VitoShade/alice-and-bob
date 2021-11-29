@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'uni.project'
-version = '1.0.0-STABLE'
+version = '1.1.0-STABLE'
 sourceCompatibility = '17'
 
 configurations {
