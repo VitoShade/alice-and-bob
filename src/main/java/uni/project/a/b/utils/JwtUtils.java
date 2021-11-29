@@ -14,11 +14,7 @@ import java.util.stream.Collectors;
 
 public class JwtUtils {
 
-    // TODO: Dove la salviamo? , IMPLEMENTARE KEYSTORE
-        /*SecureRandom random = new SecureRandom();
-        byte[] secret = new byte[512];
-        random.nextBytes(secret);
-         */
+    //TODO: In production the key need to be stored securely in the keystore!
     private static final String key = "secret";
 
     private static final Algorithm algorithm = Algorithm.HMAC512(key);
@@ -32,22 +28,19 @@ public class JwtUtils {
         return(verifier.verify(token));
     }
 
-    public static Algorithm getAlgorithm(){
-        return Algorithm.HMAC512(key);
-    }
 
-   // TODO: Modificata la durata del token per debugging, metterla a posto
+
     public static String[] encodeToken(User user, HttpServletRequest request){
 
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining()))
                 .sign(algorithm);
         String refresh_token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 90 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
 

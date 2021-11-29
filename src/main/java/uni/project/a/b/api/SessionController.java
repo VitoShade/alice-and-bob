@@ -2,18 +2,14 @@ package uni.project.a.b.api;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.header.Header;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
 import uni.project.a.b.domain.AppUser;
-import uni.project.a.b.service.MessageService;
 import uni.project.a.b.service.SessionService;
 import uni.project.a.b.service.UserService;
 
@@ -24,9 +20,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
+
+/**
+ * The session controller is used for the init of the session and for getting the session opened
+ */
 
 @RestController
 @RequestMapping("/api/conversation")
@@ -39,14 +41,12 @@ public class SessionController {
 
     private UserService userService;
 
-    private MessageService messageService;
 
 
 
-    //Establish sess, retrieve mess, send mess
 
     @PostMapping("/init")
-    public void initSession(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+    public void initializeSession(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
         String username2 = request.getParameter("username");
         String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -60,8 +60,14 @@ public class SessionController {
             log.error("Same username");
             response.sendError(400, "You cannot send a message to yourself (if you aren't in a multiverse interpretation of the world)");
         } else {
-            sessionService.establishSession(username1, username2);
-            response.setStatus(200);
+            try{
+                sessionService.establishSession(username1, username2);
+                response.setStatus(200);
+            } catch (IOException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e){
+                e.printStackTrace();
+                response.sendError(400, "The initialization of the session has not been completed due to a protocol error ");
+            }
+
         }
     }
 
@@ -99,15 +105,6 @@ public class SessionController {
     }
 
 
-
-
-
-    //Only for debugging
-    @GetMapping("/debug")
-    public void debugContextHolder(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Optional<AppSession> sess = sessionService.getSession(1L);
-        response.setHeader("Id", sess.get().getId().toString());
-    }
 
 
 

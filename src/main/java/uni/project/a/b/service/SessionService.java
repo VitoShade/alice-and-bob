@@ -1,6 +1,5 @@
 package uni.project.a.b.service;
 
-import org.springframework.security.web.header.Header;
 import uni.project.a.b.domain.AppSession;
 
 import javax.crypto.BadPaddingException;
@@ -21,9 +20,6 @@ public interface SessionService {
 
     void establishSession(String user1, String user2) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException;
 
-
-
-    //TODO: messsages handler, delete conversation (using a bean??)
 
 
 

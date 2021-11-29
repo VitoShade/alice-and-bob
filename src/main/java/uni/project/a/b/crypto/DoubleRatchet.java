@@ -1,13 +1,11 @@
 package uni.project.a.b.crypto;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 import uni.project.a.b.domain.AppHeader;
-import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
+import uni.project.a.b.domain.AppSessionState;
 import uni.project.a.b.domain.AppUser;
 import uni.project.a.b.utils.CryptoUtils;
 
@@ -18,21 +16,28 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
-// Implementing X3DH key agreement protocol, following signal own spec
-@Slf4j
+/**
+ * This class represent the full Double Ratchet protocol with the use of X3DH as key agreement method.
+ * https://signal.org/docs/
+ */
+
 public class DoubleRatchet {
 
     private static final KDF kdf = new KDF();
+
     private static final AeadCipher cipher = new AeadCipher();
 
 
 
 
 
-    public static Triplet <byte[], byte[], AppHeader> aliceKeyAgr(AppUser alice, AppUser bob) throws InvalidKeyException, IOException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+    public static Triplet <byte[], byte[], AppHeader> aliceKeyAgr(AppUser alice, AppUser bob) throws InvalidKeyException, IOException{
 
         byte[] aliceIdentityKey = alice.getKeys().getIdentityKey();
 
@@ -71,7 +76,7 @@ public class DoubleRatchet {
     }
 
 
-    public static byte[][] bobKeyAgr(AppUser bob, AppHeader header) throws IOException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public static byte[][] bobKeyAgr(AppUser bob, AppHeader header) throws IOException {
 
 
         byte[] aliceIdentityKey = header.getHeaderValues().get(0);
@@ -108,7 +113,7 @@ public class DoubleRatchet {
         return cipher.decrypt(messageKey, ciphertext, AD);
     }
 
-    public static SessionState aliceRatchetInit(AppSession session) throws InvalidKeyException {
+    public static AppSessionState aliceRatchetInit(AppSession session) throws InvalidKeyException {
 
         byte[] sharedKey = session.getAliceState().getSharedKey();
 
@@ -118,20 +123,20 @@ public class DoubleRatchet {
         byte[][] tmpkeys = CryptoUtils.split(kdf.expand(kdfOutput,64) ,32);
         byte[] rootKey = tmpkeys[0];
         byte[] sendingChainKey = tmpkeys[1];
-        return new SessionState(selfRatchetKeyPair, receiverRatchetKey, rootKey, sendingChainKey,
+        return new AppSessionState(selfRatchetKeyPair, receiverRatchetKey, rootKey, sendingChainKey,
                 0, null, 0, 0);
 
     }
 
-    public static SessionState bobRatchetInit(AppSession session, byte[] sharedKey) {
+    public static AppSessionState bobRatchetInit(byte[] sharedKey) {
 
         Curve25519KeyPair selfRatchetKeyPair = PKCrypto.generateKeyPair();
 
-        return new SessionState(selfRatchetKeyPair, null, sharedKey, null,
+        return new AppSessionState(selfRatchetKeyPair, null, sharedKey, null,
                 0, null, 0, 0);
     }
 
-    public static Triplet<byte[], AppHeader, SessionState> ratchetEncrypt(SessionState state, byte[] plaintext) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+    public static Triplet<byte[], AppHeader, AppSessionState> ratchetEncrypt(AppSessionState state, byte[] plaintext) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         byte[] AD = state.getAD();
         byte[][] tmpkeys = CryptoUtils.split(kdf.expand(kdf.deriveKey(state.getSendingChainKey()), 64), 32);
         state.setSendingChainKey(tmpkeys[0]);
@@ -160,7 +165,7 @@ public class DoubleRatchet {
 
     }
 
-    public static Pair<byte[], SessionState> ratchetDecrypt(SessionState state, byte[] ciphertext, AppHeader header) throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public static Pair<byte[], AppSessionState> ratchetDecrypt(AppSessionState state, byte[] ciphertext, AppHeader header) throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
 
         byte[] ratchetKey = header.getHeaderValues().get(0);
         int nPrevious = header.getHeaderValues2().get(0);
@@ -169,7 +174,6 @@ public class DoubleRatchet {
         //trySkippedMessageKeys
         Map<Pair<byte[], Integer>, byte[]> map = state.getSkippedMessageKeys();
         if (!map.isEmpty()) {
-            log.error("Map is not empty!");
             for (Pair<byte[], Integer> key : map.keySet()) {
                 if (key.getValue0() == ratchetKey && Objects.equals(key.getValue1(), nPrevious)) {
                     byte[] messageKey = map.get(key);
@@ -183,7 +187,7 @@ public class DoubleRatchet {
         }
 
         if (ratchetKey != state.getReceiverRatchetKey()) {
-            SessionState state1 = skipMessageKeys(state, nPrevious);
+            AppSessionState state1 = skipMessageKeys(state, nPrevious);
 
             //RATCHET DH
             state1.setNPreviousMessages(state.getNSendingMessages());
@@ -202,7 +206,7 @@ public class DoubleRatchet {
 
         }
 
-        SessionState state2 = skipMessageKeys(state, nSending);
+        AppSessionState state2 = skipMessageKeys(state, nSending);
 
         byte[][] tmp = CryptoUtils.split(kdf.expand(kdf.deriveKey(state.getReceivingChainKey()), 64), 32) ;
         state2.setReceivingChainKey(tmp[0]);
@@ -212,7 +216,7 @@ public class DoubleRatchet {
         return new Pair<>(plaintext, state2);
     }
 
-    private static SessionState skipMessageKeys(SessionState state, Integer until) throws InvalidKeyException {
+    private static AppSessionState skipMessageKeys(AppSessionState state, Integer until) throws InvalidKeyException {
         if (state.getReceivingChainKey() != null) {
             while (state.getNReceivingMessages() < until) {
                 byte[][] tmp = CryptoUtils.split(kdf.expand(kdf.deriveKey(state.getReceivingChainKey()), 64),32) ;

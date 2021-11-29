@@ -3,10 +3,8 @@ package uni.project.a.b.domain;
 
 import lombok.Data;
 import uni.project.a.b.crypto.KDF;
-import uni.project.a.b.crypto.SessionState;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -34,9 +32,9 @@ public class AppSession {
 
     private KDF kdf;
 
-    private SessionState aliceState;
+    private AppSessionState aliceState;
 
-    private SessionState bobState;
+    private AppSessionState bobState;
 
     private boolean established;
 
@@ -49,6 +47,7 @@ public class AppSession {
         this.id = id;
         this.aliceUser = aliceUser;
         this.bobUser = bobUser;
+        this.startedTime = LocalDateTime.now();
         this.aliceMessages = new CopyOnWriteArrayList<>();
         this.bobMessages = new CopyOnWriteArrayList<>();
         this.kdf = new KDF();

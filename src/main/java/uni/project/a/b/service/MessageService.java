@@ -1,7 +1,6 @@
 package uni.project.a.b.service;
 
 import uni.project.a.b.domain.AppMessage;
-import uni.project.a.b.domain.AppSession;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

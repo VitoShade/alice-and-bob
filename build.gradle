@@ -1,11 +1,11 @@
 plugins {
-	id 'org.springframework.boot' version '2.5.5'
+	id 'org.springframework.boot' version '2.5.6'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 }
 
 group = 'uni.project'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-STABLE'
 sourceCompatibility = '17'
 
 configurations {
@@ -19,23 +19,18 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.5'
-	implementation 'org.springframework.boot:spring-boot-starter-security:2.5.5'
-	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.5'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.6'
+	implementation 'org.springframework.boot:spring-boot-starter-security:2.5.6'
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.6'
 	implementation 'com.auth0:java-jwt:3.18.2'
 	implementation 'javax.validation:validation-api:2.0.1.Final'
-	implementation 'org.springframework.security:spring-security-messaging:5.5.3'
-	implementation 'org.springframework:spring-messaging:5.3.11'
 	implementation 'org.javatuples:javatuples:1.2'
-	implementation 'org.springframework.boot:spring-boot-starter-rsocket:2.5.6'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux:2.5.6'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator:2.5.6'
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
 	compileOnly 'org.projectlombok:lombok:1.18.22'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.5'
-	runtimeOnly 'org.postgresql:postgresql:42.2.24.jre7'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.6'
+	runtimeOnly 'org.postgresql:postgresql:42.3.1'
 	annotationProcessor 'org.projectlombok:lombok:1.18.22'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.5'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.6'
 	testImplementation 'org.springframework.security:spring-security-test:5.5.1'
 }
 

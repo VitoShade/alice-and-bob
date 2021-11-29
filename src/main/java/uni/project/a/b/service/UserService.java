@@ -1,9 +1,7 @@
 package uni.project.a.b.service;
 
 import org.springframework.stereotype.Service;
-import uni.project.a.b.domain.AppRole;
 import uni.project.a.b.domain.AppUser;
-import uni.project.a.b.validation.UserVal;
 
 import java.util.Optional;
 

@@ -1,13 +1,17 @@
 package uni.project.a.b.crypto;
+
 import lombok.SneakyThrows;
-import uni.project.a.b.utils.KeySpec;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+
+/**
+ * The KDF class is the implementation of the HMAC-based Extract-and-Expand Key Derivation Function (HKDF)
+ * https://www.ietf.org/rfc/rfc5869.txt
+ */
 
 public class KDF {
 
