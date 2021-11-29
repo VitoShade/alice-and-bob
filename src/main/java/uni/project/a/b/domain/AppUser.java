@@ -1,11 +1,9 @@
 package uni.project.a.b.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 
 
@@ -28,10 +26,6 @@ public class AppUser {
 
     private AppRole role;
 
-    private String token;
-
-    private String refreshToken;
-
     /**
      * Post-Protocol
      *
@@ -46,7 +40,6 @@ public class AppUser {
     public AppUser(String username, String password, AppKeys keys) {
         this.username = username;
         this.password = password;
-        //TODO: Token and keys???
         this.keys = keys;
     }
 
@@ -54,9 +47,6 @@ public class AppUser {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;
@@ -82,27 +72,8 @@ public class AppUser {
         this.role = role;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
     public AppKeys getKeys() {
         return keys;
     }
 
-    public void setKeys(AppKeys keys) {
-        this.keys = keys;
-    }
 }

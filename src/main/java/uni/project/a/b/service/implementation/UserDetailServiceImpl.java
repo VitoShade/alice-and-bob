@@ -1,8 +1,7 @@
 package uni.project.a.b.service.implementation;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -20,9 +19,9 @@ import java.util.Collection;
 @Service
 @Transactional
 @Slf4j
+@AllArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService {
 
-    @Autowired
     UserRepo userRepo;
 
     @Override
@@ -33,7 +32,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User not found in the database");
         } else {
             Collection<SimpleGrantedAuthority> authorities = user.getRole().getAuth();
-            // user.getRole().getPermissions().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
             return new User(user.getUsername(), user.getPassword(), authorities);
         }
     }
@@ -42,24 +40,14 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public boolean hasAuth(String auth){
-        return getAuth().getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
-                        .equals(auth));
-    }
-
     public UserDetails getUserDetails() {
-        UserDetails user = (UserDetails) getAuth().getPrincipal();
-        return user;
+        return (UserDetails) getAuth().getPrincipal();
     }
 
     public String getUsername(){
         return getUserDetails().getUsername();
     }
 
-    public boolean isAuth() {
-        return getAuth().isAuthenticated();
-    }
 
 
 }

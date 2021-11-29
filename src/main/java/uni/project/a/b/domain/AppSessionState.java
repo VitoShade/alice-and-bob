@@ -1,13 +1,15 @@
-package uni.project.a.b.crypto;
+package uni.project.a.b.domain;
 
 import lombok.Data;
 import org.javatuples.Pair;
-import org.javatuples.Tuple;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
 import java.util.*;
 
 /**
+ * TODO: THE FOLLOWING KEYS NEED TO BE STORED ON THE CLIENT SIDE. This implementation is used ONLY for development purpose.
+ * The session state is the domain used to retrieve all the keys used for sending and receiving messages.
+ *
  * DHs: DH Ratchet key pair (the "sending" or "self" ratchet key)
  *
  * DHr: DH Ratchet public key (the "received" or "remote" key)
@@ -24,7 +26,7 @@ import java.util.*;
  */
 
 @Data
-public class SessionState {
+public class AppSessionState {
 
     private boolean flag = false;
 
@@ -52,7 +54,7 @@ public class SessionState {
     private Map<Pair<byte[], Integer>, byte[]> skippedMessageKeys = new HashMap<>();
 
 
-    public SessionState(Curve25519KeyPair selfRatchetKeyPair, byte[] receiverRatchetKey, byte[] rootKey, byte[] sendingChainKey, int nSendingMessages, byte[] receivingChainKey, int nReceivingMessages, int nPreviousMessages) {
+    public AppSessionState(Curve25519KeyPair selfRatchetKeyPair, byte[] receiverRatchetKey, byte[] rootKey, byte[] sendingChainKey, int nSendingMessages, byte[] receivingChainKey, int nReceivingMessages, int nPreviousMessages) {
         this.selfRatchetKeyPair = selfRatchetKeyPair;
         this.receiverRatchetKey = receiverRatchetKey;
         this.rootKey = rootKey;
@@ -64,7 +66,7 @@ public class SessionState {
     }
 
 
-    public void updateState(SessionState state) {
+    public void updateState(AppSessionState state) {
         this.selfRatchetKeyPair = state.getSelfRatchetKeyPair();
         this.receiverRatchetKey = state.getReceiverRatchetKey();
         this.rootKey = state.getRootKey();
@@ -77,7 +79,7 @@ public class SessionState {
     }
 
 
-    public SessionState(byte[] sharedKey, byte[] AD) {
+    public AppSessionState(byte[] sharedKey, byte[] AD) {
         this.sharedKey = sharedKey;
         this.AD = AD;
     }

@@ -29,6 +29,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
+
+/**
+ * The message controller manage the sending and the receiving of messages
+ */
+
 @RestController
 @RequestMapping("/api/conversation/message")
 @AllArgsConstructor
@@ -43,7 +48,6 @@ public class MessageController {
     private final MessageService messageService;
 
 
-    //TODO: Pulire response, utilizzare la response entity di Spring per general coherence
 
     @PostMapping("/send")
     public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
@@ -71,10 +75,15 @@ public class MessageController {
                log.error("Message empty");
                response.sendError(400, "You cannot send an empty message ");
            } else{
-               log.info("Sending message");
-               AppMessage message = new AppMessage(sess.get().getId(), mess.getBytes(StandardCharsets.UTF_8), LocalDateTime.now(), username1);
-               messageService.sendMessage(message, sess.get().getId());
-               log.info("Message sended");
+               try {
+                   log.info("Trying to sending the message");
+                   AppMessage message = new AppMessage(sess.get().getId(), mess.getBytes(StandardCharsets.UTF_8), LocalDateTime.now(), username1);
+                   messageService.sendMessage(message, sess.get().getId());
+                   log.info("Message sended");
+               } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e){
+                   e.printStackTrace();
+                   response.sendError(400, "The message cannot be sent due to a protocol error");
+               }
             }
 
         }
@@ -88,7 +97,6 @@ public class MessageController {
         String username2 = request.getParameter("username");
         String username1 = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        //TODO: messages only from a specific time
 
         AppUser receiver = userService.getUser(username2);
         if (receiver == null) {
@@ -115,9 +123,7 @@ public class MessageController {
                     LocalDateTime localDateTime = LocalDateTime.of(date, time);
                     messages = messageService.findBySession(sess.get().getId(), localDateTime, username1);
                 }
-                messages.forEach(message -> {
-                    out.add(new Triplet<>(message.getSenderUser(), new String(message.getBody()), message.getTime()));
-                });
+                messages.forEach(message -> out.add(new Triplet<>(message.getSenderUser(), new String(message.getBody()), message.getTime())));
                 return ResponseEntity.ok(out);
             }
         }

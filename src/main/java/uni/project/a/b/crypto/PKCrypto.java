@@ -5,6 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
+/**
+ * PKCrypto is the class that allows the use of Elliptic Curve Public Key Cryptography
+ * https://www.ietf.org/rfc/rfc7748.txt
+ */
+
 @Slf4j
 public class PKCrypto {
 
@@ -28,14 +33,6 @@ public class PKCrypto {
 
     public static boolean verify(byte[] signature, byte[] message, byte[] publicKey){
         return curve.verifySignature(publicKey, message, signature);
-    }
-
-    public static int getPublicKeySize(){
-        return PUBLIC_KEY_SIZE;
-    }
-
-    public static int getSignatureSize(){
-        return SIGNATURE_SIZE;
     }
 
 }

@@ -2,17 +2,10 @@ package uni.project.a.b.domain;
 
 
 import lombok.Data;
-import org.springframework.security.web.header.Header;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
-/*@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 
- */
 @Data
 public class AppMessage {
 
@@ -44,14 +37,6 @@ public class AppMessage {
   this.header = header;
  }
 
- public Long getSessionId() {
-  return sessionId;
- }
-
- public void setSessionId(Long sessionId) {
-  this.sessionId = sessionId;
- }
-
  public byte[] getBody() {
   return body;
  }
@@ -60,21 +45,13 @@ public class AppMessage {
   this.body = body;
  }
 
-
-
  public LocalDateTime getTime() {
   return time;
  }
 
- public void setTime(LocalDateTime time) {
-  this.time = time;
- }
 
  public String getSenderUser() {
   return senderUser;
  }
 
- public void setSenderUser(String senderUser) {
-  this.senderUser = senderUser;
- }
 }

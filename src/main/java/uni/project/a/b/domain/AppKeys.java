@@ -2,7 +2,6 @@ package uni.project.a.b.domain;
 
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 import uni.project.a.b.crypto.PKCrypto;
@@ -51,39 +50,24 @@ public class AppKeys {
         return identityPrivateKey;
     }
 
-    public void setIdentityPrivateKey(byte[] identityPrivateKey) {
-        this.identityPrivateKey = identityPrivateKey;
-    }
 
     public byte[] getIdentityKey() {
         return identityKey;
     }
 
-    public void setIdentityKey(byte[] identityKey) {
-        this.identityKey = identityKey;
-    }
 
     public byte[] getSignedPreKey() {
         return signedPreKey;
     }
 
-    public void setSignedPreKey(byte[] signedPreKey) {
-        this.signedPreKey = signedPreKey;
-    }
 
     public byte[] getSignedPrivatePreKey() {
         return signedPrivatePreKey;
     }
 
-    public void setSignedPrivatePreKey(byte[] signedPrivatePreKey) {
-        this.signedPrivatePreKey = signedPrivatePreKey;
-    }
 
     public byte[] getPreKeySignature() {
         return preKeySignature;
     }
 
-    public void setPreKeySignature(byte[] preKeySignature) {
-        this.preKeySignature = preKeySignature;
-    }
 }

@@ -1,13 +1,14 @@
 package uni.project.a.b.service.implementation;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uni.project.a.b.crypto.DoubleRatchet;
 import uni.project.a.b.crypto.KDF;
-import uni.project.a.b.crypto.SessionState;
+import uni.project.a.b.domain.AppSessionState;
 import uni.project.a.b.domain.AppHeader;
 import uni.project.a.b.domain.AppMessage;
 import uni.project.a.b.domain.AppSession;
@@ -24,19 +25,41 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
 @Service
 @Transactional
+@AllArgsConstructor
 @Slf4j
 public class SessionServiceImpl implements SessionService, MessageService {
 
-    @Autowired
+
     private SessionRepo sessionRepo;
 
-    @Autowired
     private UserService userService;
+
+    /**
+     * Scheduled service that every minute check if the sessions are opened by more than 30 minute.
+     * In that case calls the delete method on that specific sessions.
+     */
+
+    @Scheduled(cron = "0 * * * * *")
+    public void sessionGC(){
+        log.info("Session GC");
+        List<AppSession> sessions = sessionRepo.getAll();
+        sessions.forEach(session -> {
+            long minutes = ChronoUnit.MINUTES.between(LocalDateTime.now(), session.getStartedTime());
+            if (minutes >= (long) 30){
+                sessionRepo.delete(session.getId());
+            }
+        });
+    }
+
+    /**
+     * Various method for getting the sessions.
+     */
 
 
     @Override
@@ -85,7 +108,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
             //sendMessage(message, sess.getId());
             sess.addMessage(message, "alice");
 
-            sess.setAliceState(new SessionState(keys.getValue0(), keys.getValue1()));
+            sess.setAliceState(new AppSessionState(keys.getValue0(), keys.getValue1()));
             sessionRepo.update(sess);
 
         } else if (aliceMessages.size() == 1 || bobMessages.size() == 0 ){
@@ -102,17 +125,10 @@ public class SessionServiceImpl implements SessionService, MessageService {
                 log.error("Decryption failed, aborting session");
                 sessionRepo.delete(sess.getId());
             } else {
-                SessionState state = DoubleRatchet.bobRatchetInit(sess,keys[0]);
+                AppSessionState state = DoubleRatchet.bobRatchetInit(keys[0]);
                 state.setAD(keys[1]);
                 sess.setBobState(state);
-                /*
-                byte[] secondMessage = "Session established, first message decrypted correctly".getBytes(StandardCharsets.UTF_8);
-                AppMessage message = new AppMessage(sess.getId(), secondMessage, LocalDateTime.now(), user1);
 
-                //sendMessage(message, sess.getId());
-                sess.addMessage(message, "bob");
-
-                 */
                 sess.deleteMessage(firstMessage, "alice");
                 sess.setEstablished(true);
                 sessionRepo.update(sess);
@@ -126,7 +142,11 @@ public class SessionServiceImpl implements SessionService, MessageService {
     }
 
 
+    /**
+     * Beginning of MessageService methods.
+     */
 
+    // TODO: Un solo findBySession!
 
     @Override
     public List<AppMessage> findBySession(Long sessionId, String username) {
@@ -163,7 +183,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
         mess.forEach(message -> {
             try {
                 if (username.equals(sess.get().getAliceUser())){
-                Pair <byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(sess.get().getAliceState(),
+                Pair <byte[], AppSessionState> pair = DoubleRatchet.ratchetDecrypt(sess.get().getAliceState(),
                         message.getBody(), message.getHeader());
                 message.setBody(pair.getValue0());
 
@@ -173,7 +193,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
                 } else {
 
                     if (message.getHeader() != null) {
-                        Pair<byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(sess.get().getBobState(),
+                        Pair<byte[], AppSessionState> pair = DoubleRatchet.ratchetDecrypt(sess.get().getBobState(),
                                 message.getBody(), message.getHeader());
                         message.setBody(pair.getValue0());
                         sess.get().setBobState(pair.getValue1());
@@ -214,20 +234,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
                 log.error("Alice need to send the first message for being able to send messages");
                 return;
             }
-            /*
-            if ((aliceMessages.size() + bobMessages.size()) < 2) {
-                log.error("Session need finish the initialization, run an establish session before sending messages");
-                return;
-
-
-            } else  if (sender.equals(session.getBobUser()) || aliceMessages.size() == 1){
-                log.error("Alice need to send the first message for being able to send messages");
-                return;
-            }
-
-             */
-
-
+            
             AppSession newSession;
             if (Objects.equals(sender, session.getAliceUser())) {
                 newSession = sendAlice(message, session);
@@ -245,7 +252,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
     private AppSession sendAlice(AppMessage message, AppSession session) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         //preliminaries check
         if (!session.getAliceState().isFlag()){
-            SessionState state = session.getAliceState();
+            AppSessionState state = session.getAliceState();
             state.updateState(DoubleRatchet.aliceRatchetInit(session));
             state.setFlag(true);
             session.setAliceState(state);
@@ -253,7 +260,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
 
         //encryption and send
         byte[] plaintext = message.getBody();
-        Triplet<byte[], AppHeader, SessionState> triplet = DoubleRatchet.ratchetEncrypt(session.getAliceState(), plaintext);
+        Triplet<byte[], AppHeader, AppSessionState> triplet = DoubleRatchet.ratchetEncrypt(session.getAliceState(), plaintext);
         message.setBody(triplet.getValue0());
         message.setHeader(triplet.getValue1());
         session.setAliceState(triplet.getValue2());
@@ -265,12 +272,12 @@ public class SessionServiceImpl implements SessionService, MessageService {
     private AppSession sendBob(AppMessage message, AppSession session) throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         //preliminaries check
         if (!session.getBobState().isFlag()) {
-            SessionState state = session.getBobState();
+            AppSessionState state = session.getBobState();
             if (session.getMessages("alice").size() != 0) {
                 AppMessage aliceInitMessage = session.getMessages("alice").get(0);
-                Pair<byte[], SessionState> pair = DoubleRatchet.ratchetDecrypt(state,
+                Pair<byte[], AppSessionState> pair = DoubleRatchet.ratchetDecrypt(state,
                         aliceInitMessage.getBody(), aliceInitMessage.getHeader());
-                SessionState newState = pair.getValue1();
+                AppSessionState newState = pair.getValue1();
                 session.deleteMessage(aliceInitMessage, "alice");
                 aliceInitMessage.setBody(pair.getValue0());
                 aliceInitMessage.setHeader(null);
@@ -284,7 +291,7 @@ public class SessionServiceImpl implements SessionService, MessageService {
         }
         //encryption and send
         byte[] plaintext = message.getBody();
-        Triplet<byte[], AppHeader, SessionState> triplet = DoubleRatchet.ratchetEncrypt(session.getBobState(), plaintext);
+        Triplet<byte[], AppHeader, AppSessionState> triplet = DoubleRatchet.ratchetEncrypt(session.getBobState(), plaintext);
         message.setBody(triplet.getValue0());
         message.setHeader(triplet.getValue1());
         session.setBobState(triplet.getValue2());

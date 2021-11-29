@@ -8,13 +8,14 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.validation.constraints.Size;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.KeyPair;
-import java.util.Base64;
+
+/**
+ * This class represent the use of the use Authenticated encryption with associated data (AEAD).
+ */
 
 @Slf4j
 public class AeadCipher {
